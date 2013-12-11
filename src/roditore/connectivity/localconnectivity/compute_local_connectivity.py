@@ -16,10 +16,7 @@ def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
     neighbourhood = getNeighbourhood(radius, zooms)
     
     localConnectivity = np.zeros(data.shape[0:3])
-    x = 0
     for i,j,k in voxelCoordinateGenerator(data.shape, mask=mask):
-        x = x+1
-        print x
         connections = 0
         for ii, jj, kk in neighbourhood:
             ni = i +ii
@@ -30,7 +27,6 @@ def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
                 connections = connections+1
         localConnectivity[i,j,k] = connections
     if prefix != None:
-        print 'prefix', prefix
         nib.save(nib.Nifti1Image(localConnectivity, img.get_affine()),\
                 prefix)
 
@@ -78,10 +74,8 @@ def computeLocalConnectivityArgparser():
 
 def main():
     args = computeLocalConnectivityArgparser().parse_args()
-    print 'prefix from args', args.prefix
     computeLocalConnectivity(args.input, args.radius, args.mask, 
             prefix=args.prefix)
 
 if __name__ == '__main__':
     main()
-            
