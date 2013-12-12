@@ -2,8 +2,7 @@ import numpy as np
 import nibabel as nib
 import math
 import argparse
-from roditore.utils.image_utils import (isVoxelInMask, 
-        voxelCoordinateGenerator)
+from roditore.utils.image_utils import (is_in_mask, voxel_coord_gen)
 
 def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
     img = nib.load(imagefile)
@@ -16,25 +15,19 @@ def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
     neighbourhood = getNeighbourhood(radius, zooms)
     
     localConnectivity = np.zeros(data.shape[0:3])
-    for i,j,k in voxelCoordinateGenerator(data.shape, mask=mask):
+    for i,j,k in voxel_coord_gen(data.shape, mask=mask):
         connections = 0
         for ii, jj, kk in neighbourhood:
             ni = i +ii
             nj = j+jj
             nk = k+kk
-            if (isVoxelInMask(ni, nj, nk, mask) and
+            if (is_in_mask(ni, nj, nk, mask) and
                 np.corrcoef(data[i,j,k], data[ni,nj,nk])[0,1] >= 0.25):
                 connections = connections+1
         localConnectivity[i,j,k] = connections
     if prefix != None:
         nib.save(nib.Nifti1Image(localConnectivity, img.get_affine()),\
                 prefix)
-
-def voxelCoordGenerator(shape):
-    for k in xrange(0, shape[2]):
-        for j in xrange(0, shape[1]):
-            for i in xrange(0, shape[0]):
-                yield(i,j,k)
 
 def getNeighbourhood(radius, zooms):
     rad0 = int(radius/zooms[0])

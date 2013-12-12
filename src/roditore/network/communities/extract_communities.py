@@ -36,15 +36,14 @@ def extractCommunitiesArgparser():
     parser.add_argument('-m', '--master', metavar='MASTER',
             help='Master image', required=True)
     parser.add_argument('-l', '--limit', metavar='LIMIT',
-            help='Maximum number of masks allowed', type=int,
-            default=0)
+            help='Maximum number of masks allowed', type=int)
     return parser
 
 def main():
     args = extractCommunitiesArgparser().parse_args()
 
     commdict = extractCommunities(args.input)
-    if (args.limit == 0 or 
+    if (args.limit == None or 
             (args.limit > 0 and len(commdict) <= args.limit)):
         createCommunityMasks(commdict, args.master, args.prefix)
     else:

@@ -3,7 +3,7 @@
 import numpy as np
 import argparse
 
-def corrmatToPajek(corrmatfile, threshold, outputfile, indexfile=None):
+def corrmatToPajek(corrmatfile, outputfile, threshold=None, indexfile=None):
     corrmat = np.load(corrmatfile)
     
     vertices = []
@@ -21,7 +21,7 @@ def corrmatToPajek(corrmatfile, threshold, outputfile, indexfile=None):
         o.write('*Edges\n')
         for i in xrange(0, corrmat.shape[0]):
             for j in xrange(i+1, corrmat.shape[0]):
-                if corrmat[i,j] >= threshold:
+                if threshold == None or corrmat[i,j] >= threshold:
                     o.write('{} {} {}\n'.format(i+1, j+1, corrmat[i,j]))
 
 def corrmatToPajekArgparser():
@@ -40,7 +40,7 @@ def corrmatToPajekArgparser():
 
 def main():
     args = corrmatToPajekArgparser().parse_args()
-    corrmatToPajek(args.input, args.threshold, args.output, 
+    corrmatToPajek(args.input, args.output, threshold=args.threshold, 
             indexfile=args.indices)
 
 if __name__ == '__main__':
