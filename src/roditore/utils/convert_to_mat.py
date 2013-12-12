@@ -17,9 +17,11 @@ def convert_to_mat_argparser():
             required=True, help=('The NumPy array will by saved under '
                 'variable name VARNAME.'))
 
+    return parser
+
 def main():
-    args = convert_to_mat_argparse().parse_args()
+    args = convert_to_mat_argparser().parse_args()
     convert_to_mat(args.input, args.output, args.variable_name)
 
-if __name__ = '__main__':
+if __name__ == '__main__':
     main()
