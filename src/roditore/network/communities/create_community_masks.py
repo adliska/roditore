@@ -4,7 +4,7 @@ import argparse
 import nibabel as nib
 import numpy as np
 
-def extractCommunities(commfile):
+def extract_communities(commfile):
     with open(commfile, 'r') as f:
         commdict = {}
         for line in f:
@@ -17,7 +17,7 @@ def extractCommunities(commfile):
                 commdict[community] = [voxel]
     return commdict
 
-def createCommunityMasks(commdict, masterimage, prefix):
+def create_community_masks(commdict, masterimage, prefix):
     master = nib.load(masterimage)
     for community in commdict:
         data = np.zeros(master.get_shape())
@@ -26,7 +26,7 @@ def createCommunityMasks(commdict, masterimage, prefix):
         nib.save(nib.Nifti1Image(data, master.get_affine()), 
                 prefix+community+'.nii.gz')
 
-def extractCommunitiesArgparser():
+def create_community_masks_argparser():
     parser = argparse.ArgumentParser(
             description='Extract community specific maps')
     parser.add_argument('-i', '--input', metavar='INPUTFILE', 
@@ -40,15 +40,14 @@ def extractCommunitiesArgparser():
     return parser
 
 def main():
-    args = extractCommunitiesArgparser().parse_args()
+    args = create_community_masks_argparser().parse_args()
 
-    commdict = extractCommunities(args.input)
+    commdict = extract_communities(args.input)
     if (args.limit == None or 
             (args.limit > 0 and len(commdict) <= args.limit)):
-        createCommunityMasks(commdict, args.master, args.prefix)
+        create_community_masks(commdict, args.master, args.prefix)
     else:
-        print ("Number of communities (" +
-                str(len(commdict)) +
+        print ("Number of communities (" + str(len(commdict)) +
                 'is above the limit.')
 
 if __name__ == "__main__":
