@@ -1,10 +1,13 @@
+#!/usr/bin/env python
+
+import sys
 import numpy as np
 import nibabel as nib
 import math
 import argparse
-from roditore.utils.image_utils import (is_in_mask, voxel_coord_gen)
+from roditore.utils.image_utils import is_in_mask, voxel_coord_gen
 
-def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
+def computeLocalConnectivity(imagefile, radius, maskfile, verbose=False):
     img = nib.load(imagefile)
     mask = nib.load(maskfile).get_data()
 
@@ -14,8 +17,16 @@ def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
     
     neighbourhood = getNeighbourhood(radius, zooms)
     
+    if verbose:
+        sys.stdout.write('Total number of voxels: {}\n'.format(
+            shape[0]*shape[1]*shape[2]))
+
     localConnectivity = np.zeros(data.shape[0:3])
+    voxelno = 0
     for i,j,k in voxel_coord_gen(data.shape, mask=mask):
+        voxelno = voxelno+1
+        if verbose and voxelno % 1000 == 0:
+            print '{}'.format(voxelno)
         connections = 0
         for ii, jj, kk in neighbourhood:
             ni = i +ii
@@ -25,9 +36,8 @@ def computeLocalConnectivity(imagefile, radius, maskfile, prefix=None):
                 np.corrcoef(data[i,j,k], data[ni,nj,nk])[0,1] >= 0.25):
                 connections = connections+1
         localConnectivity[i,j,k] = connections
-    if prefix != None:
-        nib.save(nib.Nifti1Image(localConnectivity, img.get_affine()),\
-                prefix)
+    
+    return nib.Nifti1Image(localConnectivity, img.get_affine())
 
 def getNeighbourhood(radius, zooms):
     rad0 = int(radius/zooms[0])
@@ -57,18 +67,25 @@ def computeLocalConnectivityArgparser():
                 'the given radius and outputs it as a NIFTI image.'))
     parser.add_argument('-i', '--input', metavar='CORRMAT',
             help='Input correlation matrix', required=True)
-    parser.add_argument('-p', '--prefix', metavar='PREFIX',
-            help='Prefix of the output file', required=True)
+    parser.add_argument('-o', '--output', metavar='OUTPUT',
+            help='Outpu file', required=True)
     parser.add_argument('-r', '--radius', metavar='RADIUS', type=float,
             help='Radius of local neighbourhood', required=True)
     parser.add_argument('-m', '--mask', metavar='MASK', 
             help='Mask image', required=True)
+    parser.add_argument('-v', '--verbose', action='store_true', 
+            default=False, help='switch on the verbose mode')
     return parser
 
 def main():
     args = computeLocalConnectivityArgparser().parse_args()
-    computeLocalConnectivity(args.input, args.radius, args.mask, 
-            prefix=args.prefix)
+
+    image = computeLocalConnectivity(args.input, args.radius, args.mask, 
+            verbose=args.verbose)
+
+    if not args.output.endswith('.nii.gz'):
+        args.output = args.output + '.nii.gz'
+    nib.save(image, args.output)
 
 if __name__ == '__main__':
     main()
