@@ -1,4 +1,5 @@
 import os
+import math
 
 def voxel_coord_gen(shape, mask=None):
     for k in xrange(0, shape[2]):
@@ -22,3 +23,37 @@ def imagename(path):
         name = os.path.splitext(name)[0]
 
     return name
+
+def voxel_distance(voxel1, voxel2, resolution):
+    return math.sqrt(((voxel1[0]-voxel2[0])*resolution[0])**2 +
+            ((voxel1[1]-voxel2[1])*resolution[1])**2 +
+            ((voxel1[2]-voxel2[2])*resolution[2])**2)
+
+def voxel_index(indexfile):
+    with open(indexfile, 'r') as f:
+        index = [tuple([int(y) for y in x]) for x in [line.split() for line in f]]
+    return index
+
+def voxel_map(index):
+    return {v:k for k, v in enumerate(index)}
+
+def voxel_neighbourhood(radius, dimensions):
+    rad0 = int(radius/dimensions[0])
+    rad1 = int(radius/dimensions[1])
+    rad2 = int(radius/dimensions[2])
+
+    neighbours = []
+    for i in xrange(0, rad0+1):
+        for j in xrange(0, rad1+1):
+            for k in xrange(0, rad2+1):
+                distance = voxel_distance([0,0,0], [i,j,k], dimensions)
+                if ((i>0 or j>0 or k>0) and distance <= radius):
+                    neighbours.extend({(i, j, k), 
+                                       (i, j, -k),
+                                       (i, -j, k),
+                                       (i, -j, -k),
+                                       (-i, j, k),
+                                       (-i, j, -k),
+                                       (-i, -j, k),
+                                       (-i, -j, -k)})
+    return neighbours
