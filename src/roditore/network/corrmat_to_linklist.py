@@ -12,7 +12,7 @@ def corrmat_to_linklist(corrmatfile, dataset, outputfile, threshold=None):
     with open(outputfile, 'w') as o:
         for i in xrange(0, corrmat.shape[0]):
             for j in xrange(i+1, corrmat.shape[0]):
-                if threshold == None or corrmat[i,j] >= threshold:
+                if threshold == None or corrmat[i,j] > threshold:
                     o.write('{} {} {}\n'.format(i+1, j+1, corrmat[i,j]))
 
 def corrmat_to_linklist_argparser():
