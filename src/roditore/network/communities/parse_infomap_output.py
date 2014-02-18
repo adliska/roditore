@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 import argparse
+import sys
 
-def parseInfomapOutput(treefile, outputfile):
+def parse_infomap_output(treefile, output):
     commdict = {}
     with open(treefile, 'r') as t:
         for line in t:
@@ -11,23 +12,33 @@ def parseInfomapOutput(treefile, outputfile):
                 voxel = (int(split[2].strip('"')), int(split[3]), 
                         int(split[4].strip('"')))
                 commdict[voxel] = int(split[0].split(':')[0])
-    with open(outputfile, 'w') as o:
-        for voxel in commdict:
-            o.write('{0[0]} {0[1]} {0[2]} {1}\n'.format(voxel, 
-                commdict[voxel]))
+    for voxel in commdict:
+        output.write('{0[0]} {0[1]} {0[2]} {1}\n'.format(voxel, 
+            commdict[voxel]))
 
-def parseInfomapOutputArgparser():
+def parse_infomap_output_argparser():
     parser = argparse.ArgumentParser(
             description='Parses the tree output of Infomap')
-    parser.add_argument('-i', '--input', metavar='FILE',
-            help='Input tree file', required=True)
+    parser.add_argument('input', metavar='INPUT',
+            help='Input tree file')
     parser.add_argument('-o', '--output', metavar='OUTPUTFILE',
-            help='Output file', required=True)
+            help='Output file')
     return parser
 
 def main():
-    args = parseInfomapOutputArgparser().parse_args()
-    parseInfomapOutput(args.input, args.output)
+    args = parse_infomap_output_argparser().parse_args()
+
+    if args.output is not None:
+        output = open(args.output, 'w')
+    else:
+        output = sys.stdout
+
+    parse_infomap_output(args.input, output)
+
+    if args.output is not None:
+        output.close()
+
+
 
 if __name__ == '__main__':
     main()
