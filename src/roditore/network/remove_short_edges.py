@@ -17,16 +17,6 @@ def remove_short_edges(corrmat, index, dimensions, radius):
             if neighbour in voxelmap:
                 corrmat[i, voxelmap[neighbour]] = 0
                 corrmat[voxelmap[neighbour], i] = 0
-
-        '''
-        for j in xrange(i, len(index)):
-            if i*len(index)+j % 10000 == 0:
-                print str(i*len(index)+j)
-            print str(i), str(j)
-            if imutils.voxel_distance(index[i], index[j], 
-                    resolution) < radius:
-                corrmat[i,j] = 0
-                corrmat[j,i] = 0'''
     return corrmat
 
 def remove_short_edges_argparser():
