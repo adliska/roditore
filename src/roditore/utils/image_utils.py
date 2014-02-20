@@ -1,5 +1,6 @@
 import os
 import math
+import numpy as np
 
 def voxel_coord_gen(shape, mask=None):
     for k in xrange(0, shape[2]):
@@ -7,6 +8,13 @@ def voxel_coord_gen(shape, mask=None):
             for i in xrange(0, shape[0]):
                 if mask == None or mask[i,j,k] == 1:
                     yield(i,j,k)
+
+def mask_voxels(mask):
+    return zip(*np.where(mask == 1))
+
+def print_voxels(voxels, output):
+    for voxel in voxels:
+        output.write('{0[0]} {0[1]} {0[2]}\n'.format(voxel))
 
 def is_in_mask(i, j, k, mask):
     if (i >= 0 and i < mask.shape[0]
