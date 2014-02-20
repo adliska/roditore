@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import sys
 
-def avg_corr_matrix(matfiles, verbose=False):
+def avg_correlation_matrix(matfiles, verbose=False):
     if verbose:
         print 'Total number of matrices:', str(len(matfiles))
         print '1..'
@@ -29,12 +29,12 @@ def avg_corr_matrix(matfiles, verbose=False):
     
     return avgmat
 
-def avg_corr_matrix_argparser():
+def avg_correlation_matrix_argparser():
     parser = argparse.ArgumentParser(
             description=('Computes the average correlation matrix from '
                 'given correlation matrices. Uses Fisher transformation.'))
-    parser.add_argument('-i', '--input', metavar='SUBJMATs', nargs='+',
-            help='Input correlation matrices', required=True)
+    parser.add_argument('input', metavar='SUBJMAT', nargs='+',
+            help='Input correlation matrices')
     parser.add_argument('-o', '--output', metavar='AVGMAT', 
             help='The averaged correlation matrix will be written to AVGMAT.',
             required=True)
@@ -45,9 +45,9 @@ def avg_corr_matrix_argparser():
     return parser
 
 def main():
-    args = avg_corr_matrix_argparser().parse_args()
+    args = avg_correlation_matrix_argparser().parse_args()
 
-    avgcorrmat = avg_corr_matrix(args.input, verbose=args.verbose)
+    avgcorrmat = avg_correlation_matrix(args.input, verbose=args.verbose)
 
     f = h5py.File(args.output, 'w-')
     f.create_dataset(args.dataset, data=avgcorrmat)
