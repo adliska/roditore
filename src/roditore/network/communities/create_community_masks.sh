@@ -21,8 +21,8 @@ for comm in $(seq 1 $num_communities)
 do
     grep " ${comm}$" $input | \
         cut -f1-3 -d' ' | \
-        ~/tools/afni64/3dUndump \
-            -prefix ${prefix}_comm${comm}.nii.gz \
+        3dUndump \
+            -prefix ${prefix}_${comm}.nii.gz \
             -master $master \
             -
 done
