@@ -33,7 +33,7 @@ def create_cooccurrence_network_argparser():
             'assignment files. Nodes in the network are voxels. Edge weights '
             'represent the ratio of networks in which the two connected '
             'voxels appeared in the same community.'))
-    parser.add_argument('-i', '--input', metavar='INPUTs', required=True,
+    parser.add_argument('input', metavar='INPUTs', 
             nargs='+',help='Input network assignments.')
     parser.add_argument('-o', '--output', metavar='OUTPUT', required=True,
             help='Name of the output HDF5 file. Network represented by an '
