@@ -5,7 +5,7 @@ import h5py
 import numpy as np
 import sys
 
-def avg_correlation_matrix(matfiles, verbose=False):
+def avg_correlation_matrix(matfiles, verbose=False, threshold=None):
     if verbose:
         print 'Total number of matrices:', str(len(matfiles))
         print '1..'
@@ -14,6 +14,8 @@ def avg_correlation_matrix(matfiles, verbose=False):
     subjmat = f['corrmat'][...]
     f.close()
     np.fill_diagonal(subjmat, 0)
+    if threshold is not None:
+        subjmat[np.logical_and(subjmat<threshold, subjmat>-threshold)] = 0
     avgmat = np.arctanh(subjmat)
 
     for i in xrange(1, len(matfiles)):
@@ -23,6 +25,9 @@ def avg_correlation_matrix(matfiles, verbose=False):
         subjmat = f['corrmat'][...]
         f.close()
         np.fill_diagonal(subjmat, 0)
+        if threshold is not None:
+            subjmat[np.logical_and(subjmat < threshold, 
+                subjmat >-threshold)] = 0 
         avgmat = avgmat + np.arctanh(subjmat)
 
     avgmat = np.tanh(avgmat / float(len(matfiles)))
@@ -42,12 +47,16 @@ def avg_correlation_matrix_argparser():
             help='Name of the HDF5 dataset.', required=True)
     parser.add_argument('-v', '--verbose', help='switch on the verbose mode',
             action='store_true', default=False)
+    parser.add_argument('-t', '--threshold', help='Subject correlation '
+            'matrix threshold', metavar='THRESHOLD', type=float,
+            required=False, default=None)
     return parser
 
 def main():
     args = avg_correlation_matrix_argparser().parse_args()
 
-    avgcorrmat = avg_correlation_matrix(args.input, verbose=args.verbose)
+    avgcorrmat = avg_correlation_matrix(args.input, verbose=args.verbose,
+            threshold=args.threshold)
 
     f = h5py.File(args.output, 'w-')
     f.create_dataset(args.dataset, data=avgcorrmat)
